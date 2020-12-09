@@ -20,7 +20,8 @@ if __name__ == '__main__':
     model.summary()
 
     # caculate metrics
-    snr, lsd = evaluation_whole(model, in_dir_hr=in_dir_hr, in_dir_lr=in_dir_lr)
+    snr, lsd = evaluation(model, crop_length=8192, channel=None,
+                          in_dir_hr=in_dir_hr, in_dir_lr=in_dir_lr)
     print("SNR: ", snr, " LSD: ", lsd)
 
     # generate SR audios from LR audios in 'lr_folder'
@@ -31,7 +32,7 @@ if __name__ == '__main__':
         names.sort()
         num = len(names)
         for i in tqdm(range(num)):
-            generate_sr_sample(model, crop_length=2048,
+            generate_sr_sample(model, crop_length=8192,
                                in_dir_lr=paths[i], save_path=save_folder + names[i][2:])
 
 

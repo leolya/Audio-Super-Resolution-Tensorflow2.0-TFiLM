@@ -3,7 +3,7 @@ from dataset import get_audio_dataset
 from model.Tfilm import tfilm_net
 import os
 import h5py
-from utils import evaluation_whole
+from utils import evaluation
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -12,7 +12,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 train_dataset_path = "./train.h5"
 test_dataset_path = "./test.h5"
 save_path = './'
-batch_size = 64
+batch_size = 32
 EPOCHS = 50
 lr = 3e-4
 
@@ -79,6 +79,7 @@ if __name__ == '__main__':
 
     # final evaluation
     model.load_weights(save_path + 'checkpoint.h5')
-    snr, lsd = evaluation_whole(model, in_dir_hr=in_dir_hr_test, in_dir_lr=in_dir_lr_test)
+    snr, lsd = evaluation(model, crop_length=8192, channel=None,
+                          in_dir_hr=in_dir_hr_test, in_dir_lr=in_dir_lr_test)
     print("Final Results -- SNR: ", snr, " LSD: ", lsd)
 

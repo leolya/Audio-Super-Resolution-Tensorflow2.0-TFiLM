@@ -26,52 +26,6 @@ def LSD(x_hr, x_pr):
     return lsd
 
 
-def evaluation_whole(model, in_dir_hr, in_dir_lr, crop=32):
-
-    snr_sum = 0
-    lsd_sum = 0
-    length_sum = 0
-
-    hr_files = os.listdir(in_dir_hr)
-    hr_files.sort()
-    hr_file_list = []
-
-    for hr_file in hr_files:
-        hr_file_list.append(in_dir_hr + hr_file)
-
-    lr_files = os.listdir(in_dir_lr)
-    lr_files.sort()
-    lr_file_list = []
-
-    for lr_file in lr_files:
-        lr_file_list.append(in_dir_lr + lr_file)
-
-    file_num = len(hr_file_list)
-    assert file_num == len(lr_file_list)
-
-    for i in tqdm(range(file_num)):
-
-        x_lr, fs = librosa.load(lr_file_list[i], sr=None)
-        x_hr, fs_ = librosa.load(hr_file_list[i], sr=None)
-        length = (len(x_lr) // crop) * crop
-        x_lr = x_lr[0: length]
-        x_hr = x_hr[0: length]
-
-        x_in = np.expand_dims(np.expand_dims(np.abs(x_lr), axis=-1), axis=0)
-        x_in = tf.convert_to_tensor(x_in, dtype=tf.float32)
-        pred = model(x_in)
-        pred = pred.numpy()
-        pred = np.squeeze(np.squeeze(pred))
-
-        snr = SNR(x_hr, pred)
-        lsd = LSD(x_hr, pred)
-
-        snr_sum = snr_sum + snr * length
-        lsd_sum = lsd_sum + lsd * length
-
-    return snr_sum / length_sum, lsd_sum / length_sum
-
-
 def evaluation(model, crop_length, channel, in_dir_hr, in_dir_lr):
 
     snr_sum = 0
@@ -117,7 +71,7 @@ def evaluation(model, crop_length, channel, in_dir_hr, in_dir_lr):
 
         for j in range(0, batches):
             x_lr_ = x_lr[int(j * crop_length / 2): int((j * crop_length / 2) + crop_length)]
-            x_in = np.expand_dims(np.expand_dims(np.abs(x_lr_), axis=-1), axis=0)
+            x_in = np.expand_dims(np.expand_dims(x_lr_, axis=-1), axis=0)
             x_in = tf.convert_to_tensor(x_in, dtype=tf.float32)
             pred = model(x_in)
             pred = pred.numpy()
@@ -160,7 +114,7 @@ def generate_sr_sample(model, crop_length, in_dir_lr, save_path):
 
     for i in range(batches):
         x_lr_ = x_lr[int(i * crop_length / 2): int((i * crop_length / 2) + crop_length)]
-        x_in = np.expand_dims(np.expand_dims(np.abs(x_lr_), axis=-1), axis=0)
+        x_in = np.expand_dims(np.expand_dims(x_lr_, axis=-1), axis=0)
         x_in = tf.convert_to_tensor(x_in, dtype=tf.float32)
         pred = model(x_in)
         pred = pred.numpy()
