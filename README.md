@@ -49,5 +49,5 @@ Run `test.py`  for evaluation.
 |            | SNR (dB) | LSD (dB) |
 | ---------- | -------- | -------- |
 | paper      | 16.8     | 3.5      |
-| my results | ??       | ??       |
+| my results | 17.37    | 3.425    |
 
